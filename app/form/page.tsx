@@ -38,28 +38,30 @@ function FormContent() {
   };
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+
+  try {
+    // Get IP
+    let ip = "";
+    let country = "";
+    let countryCode = "";
 
     try {
-      // Get IP
-      let ip = "";
-      let country = "";
-      let countryCode = "";
+      const ipRes = await fetch("https://api.ipify.org?format=json");
+      const ipData = await ipRes.json();
+      ip = ipData.ip;
 
-      try {
-        const ipRes = await fetch("https://api.ipify.org?format=json");
-        const ipData = await ipRes.json();
-        ip = ipData.ip;
+      const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+      const geoData = await geoRes.json();
+      country = geoData.country_name || "";
+      countryCode = geoData.country_code || "";
+    } catch (err) {
+      console.log("IP detection failed");
+    }
 
-        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
-        const geoData = await geoRes.json();
-        country = geoData.country_name || "";
-        countryCode = geoData.country_code || "";
-      } catch (err) {
-        console.log("IP detection failed");
-      }
+    // ... rest of the code
 
       // Insert to Supabase
       const { error: dbError } = await supabase.from("orders").insert({

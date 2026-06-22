@@ -41,8 +41,8 @@ export default function Home() {
     <main className="min-h-screen bg-[#030712] text-white overflow-x-hidden">
 
       {/* Background Effects */}
-      <div className="fixed left-0 top-96 w-96 h-96 bg-blue-600/20 blur-[150px] rounded-full pointer-events-none" />
-      <div className="fixed right-0 top-96 w-96 h-96 bg-blue-600/20 blur-[150px] rounded-full pointer-events-none" />
+      <div className="fixed left-0 top-96 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
+<div className="fixed right-0 top-96 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
 
       {/* Navbar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
