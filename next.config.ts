@@ -8,7 +8,11 @@ const nextConfig: NextConfig = {
     deviceSizes: [320, 480, 640, 768, 1080],
   },
   experimental: {
-    optimizePackageImports: ['lucide-react', 'react-countup'],
+    optimizePackageImports: ['lucide-react'],
+  },
+  // Remove legacy JavaScript
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
 };
 
