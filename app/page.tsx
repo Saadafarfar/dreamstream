@@ -85,11 +85,12 @@ export default function Home() {
 
           {/* Mobile Menu Button */}
           <button 
-            className="md:hidden p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+  className="md:hidden p-2"
+  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+  aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+>
+  {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+</button>
         </div>
 
         {/* Mobile Menu */}
