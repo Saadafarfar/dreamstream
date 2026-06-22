@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
+    deviceSizes: [320, 480, 640, 768, 1080],
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'react-countup'],
