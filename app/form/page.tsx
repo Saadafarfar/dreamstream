@@ -1,12 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { Check, AlertCircle, Loader2, Shield, Clock } from "lucide-react";
 
+// Wrap the main component in Suspense
 export default function FormPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#030712] flex items-center justify-center">
+      <Loader2 className="animate-spin text-blue-500" size={40} />
+    </div>}>
+      <FormContent />
+    </Suspense>
+  );
+}
+
+// Move all the form logic into a separate component
+function FormContent() {
   const searchParams = useSearchParams();
   const defaultPlan = searchParams.get("plan") || "basic";
 
@@ -66,7 +78,7 @@ export default function FormPage() {
         throw dbError;
       }
 
-      // Send Telegram notification (optional)
+      // Send Telegram notification
       try {
         await fetch("/api/telegram", {
           method: "POST",
