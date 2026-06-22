@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
   },
-  // This single line fixes the mobile speed by removing unused code
   experimental: {
     optimizePackageImports: ['lucide-react', 'react-countup'],
   },
