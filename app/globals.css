@@ -14,7 +14,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    /* Changed to your dark theme color to prevent white flash on load */
+    --background: #030712; 
     --foreground: #ededed;
   }
 }
@@ -22,5 +23,6 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Uses your custom Geist fonts, falls back to system fonts */
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
