@@ -1,5 +1,5 @@
 "use client";
-
+import dynamic from 'next/dynamic';
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,6 +16,132 @@ import {
   Star,
   ChevronDown
 } from "lucide-react";
+
+// Lazy load components below the fold
+const FeatureCard = dynamic(() => Promise.resolve(
+  function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+    return (
+      <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-8 hover:border-blue-500/50 hover:bg-slate-900 transition-all duration-300 group">
+        <div className="w-16 h-16 rounded-2xl bg-blue-600/20 text-blue-500 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+          {icon}
+        </div>
+        <h3 className="text-2xl font-bold mt-6">{title}</h3>
+        <p className="text-gray-400 mt-4 leading-relaxed">{description}</p>
+      </div>
+    );
+  }
+), {
+  loading: () => <div className="h-64 bg-slate-900/50 rounded-3xl animate-pulse" />
+});
+
+const PricingCard = dynamic(() => Promise.resolve(
+  function PricingCard({
+    name,
+    price,
+    period,
+    description,
+    features,
+    cta,
+    href,
+    highlighted = false,
+  }: {
+    name: string;
+    price: string;
+    period: string;
+    description: string;
+    features: string[];
+    cta: string;
+    href: string;
+    highlighted?: boolean;
+  }) {
+    return (
+      <div className={`rounded-3xl p-8 ${
+        highlighted 
+          ? "bg-blue-600 scale-105 shadow-2xl shadow-blue-600/25" 
+          : "bg-slate-900 border border-slate-800"
+      }`}>
+        <h3 className="text-2xl font-bold">{name}</h3>
+        <p className={`mt-2 ${highlighted ? "text-blue-100" : "text-gray-400"}`}>{description}</p>
+        
+        <div className="mt-6">
+          <span className="text-5xl font-bold">€{price}</span>
+          <span className={`${highlighted ? "text-blue-100" : "text-gray-400"}`}>/{period}</span>
+        </div>
+
+        <ul className="mt-8 space-y-4">
+          {features.map((feature, index) => (
+            <li key={index} className="flex items-start gap-3">
+              <Check size={20} className={highlighted ? "text-white" : "text-blue-500"} />
+              <span className={highlighted ? "text-white" : "text-gray-300"}>{feature}</span>
+            </li>
+          ))}
+        </ul>
+
+        <Link
+          href={href}
+          className={`block text-center w-full mt-10 py-4 rounded-xl font-semibold transition ${
+            highlighted 
+              ? "bg-black hover:bg-gray-900 text-white" 
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+        >
+          {cta}
+        </Link>
+      </div>
+    );
+  }
+), {
+  loading: () => <div className="h-96 bg-slate-900/50 rounded-3xl animate-pulse" />
+});
+
+const TestimonialCard = dynamic(() => Promise.resolve(
+  function TestimonialCard({ stars, text, author, role }: { stars: number; text: string; author: string; role: string }) {
+    return (
+      <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-8">
+        <div className="flex gap-1 mb-4">
+          {[...Array(stars)].map((_, i) => (
+            <Star key={i} size={20} className="fill-yellow-500 text-yellow-500" />
+          ))}
+        </div>
+        <p className="text-gray-300 mb-6 leading-relaxed">"{text}"</p>
+        <div>
+          <p className="font-bold">{author}</p>
+          <p className="text-sm text-gray-400">{role}</p>
+        </div>
+      </div>
+    );
+  }
+), {
+  loading: () => <div className="h-64 bg-slate-900/50 rounded-3xl animate-pulse" />
+});
+
+const FAQItem = dynamic(() => Promise.resolve(
+  function FAQItem({ question, answer }: { question: string; answer: string }) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+      <div className="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-slate-900 transition"
+        >
+          <span className="font-semibold text-lg">{question}</span>
+          <ChevronDown 
+            size={20} 
+            className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`} 
+          />
+        </button>
+        {isOpen && (
+          <div className="px-6 pb-5 text-gray-400 leading-relaxed">
+            {answer}
+          </div>
+        )}
+      </div>
+    );
+  }
+), {
+  loading: () => <div className="h-32 bg-slate-900/50 rounded-2xl animate-pulse mb-4" />
+});
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -42,7 +168,7 @@ export default function Home() {
 
       {/* Background Effects */}
       <div className="fixed left-0 top-96 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
-<div className="fixed right-0 top-96 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
+      <div className="fixed right-0 top-96 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
 
       {/* Navbar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -85,12 +211,12 @@ export default function Home() {
 
           {/* Mobile Menu Button */}
           <button 
-  className="md:hidden p-2"
-  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-  aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
->
-  {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-</button>
+            className="md:hidden p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
         </div>
 
         {/* Mobile Menu */}
@@ -335,7 +461,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="max-w-5xl mx-auto px-6 py-24">
-        <div className="bg-linear-to-br from-blue-600 to-blue-800 rounded-3xl p-12 md:p-16 text-center">
+        <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-12 md:p-16 text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Start Streaming?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Join thousands of happy customers and experience the future of streaming today.
@@ -400,115 +526,5 @@ export default function Home() {
         </div>
       </footer>
     </main>
-  );
-}
-
-/* ---------- Subcomponents ---------- */
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
-  return (
-    <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-8 hover:border-blue-500/50 hover:bg-slate-900 transition-all duration-300 group">
-      <div className="w-16 h-16 rounded-2xl bg-blue-600/20 text-blue-500 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-        {icon}
-      </div>
-      <h3 className="text-2xl font-bold mt-6">{title}</h3>
-      <p className="text-gray-400 mt-4 leading-relaxed">{description}</p>
-    </div>
-  );
-}
-
-function PricingCard({
-  name,
-  price,
-  period,
-  description,
-  features,
-  cta,
-  href,
-  highlighted = false,
-}: {
-  name: string;
-  price: string;
-  period: string;
-  description: string;
-  features: string[];
-  cta: string;
-  href: string;
-  highlighted?: boolean;
-}) {
-  return (
-    <div className={`rounded-3xl p-8 ${
-      highlighted 
-        ? "bg-blue-600 scale-105 shadow-2xl shadow-blue-600/25" 
-        : "bg-slate-900 border border-slate-800"
-    }`}>
-      <h3 className="text-2xl font-bold">{name}</h3>
-      <p className={`mt-2 ${highlighted ? "text-blue-100" : "text-gray-400"}`}>{description}</p>
-      
-      <div className="mt-6">
-        <span className="text-5xl font-bold">€{price}</span>
-        <span className={`${highlighted ? "text-blue-100" : "text-gray-400"}`}>/{period}</span>
-      </div>
-
-      <ul className="mt-8 space-y-4">
-        {features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-3">
-            <Check size={20} className={highlighted ? "text-white" : "text-blue-500"} />
-            <span className={highlighted ? "text-white" : "text-gray-300"}>{feature}</span>
-          </li>
-        ))}
-      </ul>
-
-      <Link
-        href={href}
-        className={`block text-center w-full mt-10 py-4 rounded-xl font-semibold transition ${
-          highlighted 
-            ? "bg-black hover:bg-gray-900 text-white" 
-            : "bg-blue-600 hover:bg-blue-700 text-white"
-        }`}
-      >
-        {cta}
-      </Link>
-    </div>
-  );
-}
-
-function TestimonialCard({ stars, text, author, role }: { stars: number; text: string; author: string; role: string }) {
-  return (
-    <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-8">
-      <div className="flex gap-1 mb-4">
-        {[...Array(stars)].map((_, i) => (
-          <Star key={i} size={20} className="fill-yellow-500 text-yellow-500" />
-        ))}
-      </div>
-      <p className="text-gray-300 mb-6 leading-relaxed">"{text}"</p>
-      <div>
-        <p className="font-bold">{author}</p>
-        <p className="text-sm text-gray-400">{role}</p>
-      </div>
-    </div>
-  );
-}
-
-function FAQItem({ question, answer }: { question: string; answer: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-slate-900 transition"
-      >
-        <span className="font-semibold text-lg">{question}</span>
-        <ChevronDown 
-          size={20} 
-          className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`} 
-        />
-      </button>
-      {isOpen && (
-        <div className="px-6 pb-5 text-gray-400 leading-relaxed">
-          {answer}
-        </div>
-      )}
-    </div>
   );
 }
