@@ -10,10 +10,8 @@ import {
   Search,
   RefreshCw,
   AlertCircle,
-  CheckCircle2,
   MessageCircle,
   Mail,
-  ExternalLink,
 } from "lucide-react";
 
 /* ---------- Types ---------- */
@@ -112,7 +110,7 @@ export default function AdminPage() {
       );
 
       if (!confirmed) {
-        fetchOrders(); // Reset dropdown
+        fetchOrders();
         return;
       }
 
@@ -125,7 +123,6 @@ export default function AdminPage() {
 
         if (error) throw error;
 
-        // Optimistic update
         setOrders((prev) =>
           prev.map((o) => (o.id === id ? { ...o, status: newStatus as Order["status"] } : o))
         );
@@ -164,7 +161,6 @@ export default function AdminPage() {
     link.click();
     document.body.removeChild(link);
 
-    // Show success feedback
     alert(`Exported ${orders.length} orders to CSV!`);
   }, [orders]);
 
@@ -187,7 +183,6 @@ export default function AdminPage() {
     );
   }, [orders, search]);
 
-  // Stats
   const stats = useMemo(() => {
     const total = orders.length;
     const pending = orders.filter((o) => o.status === "pending").length;
@@ -202,21 +197,22 @@ export default function AdminPage() {
     <div className="flex min-h-screen bg-[#030712] text-white">
       <Sidebar />
 
-      <main className="flex-1 p-6 md:p-10">
+      {/* Added pt-20 for mobile menu clearance */}
+      <main className="flex-1 p-4 md:p-8 lg:p-10 pt-20 md:pt-10 overflow-x-hidden">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold">Orders Dashboard</h1>
-            <p className="text-slate-400 mt-2">
+            <h1 className="text-3xl lg:text-4xl font-bold">Orders Dashboard</h1>
+            <p className="text-slate-400 mt-2 text-sm lg:text-base">
               Manage and track all your DreamStream leads
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-col sm:flex-row">
             <button
               onClick={exportCSV}
               disabled={orders.length === 0}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-slate-700 disabled:cursor-not-allowed px-5 py-3 rounded-xl font-medium transition"
+              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-slate-700 disabled:cursor-not-allowed px-5 py-3 rounded-xl font-medium transition"
             >
               <Download size={18} />
               Export CSV
@@ -224,7 +220,7 @@ export default function AdminPage() {
 
             <button
               onClick={logout}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-5 py-3 rounded-xl font-medium transition"
+              className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 px-5 py-3 rounded-xl font-medium transition"
             >
               <LogOut size={18} />
               Logout
@@ -233,7 +229,7 @@ export default function AdminPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
           <StatCard label="Total Orders" value={stats.total} color="text-blue-400" />
           <StatCard label="Pending" value={stats.pending} color="text-yellow-400" />
           <StatCard label="Contacted" value={stats.contacted} color="text-green-400" />
@@ -248,7 +244,7 @@ export default function AdminPage() {
           />
           <input
             type="text"
-            placeholder="Search name, email, WhatsApp, IP, country..."
+            placeholder="Search name, email, WhatsApp..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 transition"
@@ -258,14 +254,14 @@ export default function AdminPage() {
         {/* Error State */}
         {error && (
           <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3">
-            <AlertCircle className="text-red-400" size={20} />
-            <div>
+            <AlertCircle className="text-red-400 shrink-0" size={20} />
+            <div className="min-w-0">
               <p className="font-semibold text-red-400">Error loading orders</p>
-              <p className="text-sm text-slate-400">{error}</p>
+              <p className="text-sm text-slate-400 truncate">{error}</p>
             </div>
             <button
               onClick={fetchOrders}
-              className="ml-auto px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg text-sm font-medium"
+              className="ml-auto px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg text-sm font-medium shrink-0"
             >
               Retry
             </button>
@@ -280,7 +276,7 @@ export default function AdminPage() {
           </div>
         ) : filteredOrders.length === 0 ? (
           /* Empty State */
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 lg:p-12 text-center">
             <AlertCircle size={48} className="mx-auto text-slate-600 mb-4" />
             <h3 className="text-2xl font-bold mb-2">
               {search ? "No results found" : "No orders yet"}
@@ -292,105 +288,193 @@ export default function AdminPage() {
             </p>
           </div>
         ) : (
-          /* Table */
-          <div className="overflow-x-auto bg-slate-900 border border-slate-800 rounded-2xl">
-            <table className="w-full">
-              <thead className="bg-slate-950">
-                <tr>
-                  <Th>Name</Th>
-                  <Th>Email</Th>
-                  <Th>WhatsApp</Th>
-                  <Th>Plan</Th>
-                  <Th>Status</Th>
-                  <Th>Country</Th>
-                  <Th>IP</Th>
-                  <Th>Date</Th>
-                  <Th>Actions</Th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {filteredOrders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="hover:bg-slate-800/50 transition"
-                  >
-                    <Td>
-                      <div className="font-medium">{order.full_name || "—"}</div>
-                    </Td>
-                    <Td>
-                      <a
-                        href={`mailto:${order.email}`}
-                        className="text-blue-400 hover:underline"
-                      >
-                        {order.email}
-                      </a>
-                    </Td>
-                    <Td>{order.whatsapp || "—"}</Td>
-                    <Td>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold border ${
-                          PLAN_COLORS[order.plan]
-                        }`}
-                      >
+          <>
+            {/* MOBILE CARD VIEW - Shows only on mobile */}
+            <div className="md:hidden space-y-3">
+              {filteredOrders.map((order) => (
+                <div
+                  key={order.id}
+                  className="bg-slate-900 border border-slate-800 rounded-2xl p-4 hover:border-slate-700 transition"
+                >
+                  {/* Top Section: Name & Badges */}
+                  <div className="flex items-start justify-between mb-3 gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-11 h-11 rounded-full bg-blue-500 flex items-center justify-center font-bold text-white shrink-0">
+                        {order.full_name?.charAt(0).toUpperCase() || "?"}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-white truncate">
+                          {order.full_name || "Unnamed"}
+                        </p>
+                        <a
+                          href={`mailto:${order.email}`}
+                          className="text-xs text-blue-400 hover:underline truncate block"
+                        >
+                          {order.email}
+                        </a>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1.5 shrink-0 items-end">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border ${PLAN_COLORS[order.plan]}`}>
                         {order.plan}
                       </span>
-                    </Td>
-                    <Td>
-                      <select
-                        value={order.status || "pending"}
-                        onChange={(e) => updateStatus(order.id, e.target.value)}
-                        disabled={updatingId === order.id}
-                        className={`px-3 py-2 rounded-lg border text-sm font-medium bg-transparent cursor-pointer disabled:opacity-50 ${
-                          STATUS_COLORS[order.status || "pending"]
-                        }`}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="contacted">Contacted</option>
-                        <option value="closed">Closed</option>
-                      </select>
-                    </Td>
-                    <Td>
-                      <div className="flex items-center gap-2">
+                    </div>
+                  </div>
+
+                  {/* Details Section */}
+                  <div className="space-y-2 text-sm mb-4">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <span className="w-20 shrink-0">WhatsApp:</span>
+                      <span className="text-white truncate">{order.whatsapp || "—"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <span className="w-20 shrink-0">Country:</span>
+                      <div className="flex items-center gap-2 min-w-0">
                         {order.country_code && (
                           <img
                             src={`https://flagcdn.com/w40/${order.country_code.toLowerCase()}.png`}
                             alt={order.country}
-                            className="w-6 h-4 rounded"
+                            className="w-5 h-3 rounded shrink-0"
                             loading="lazy"
                           />
                         )}
-                        <span className="text-sm">{order.country || "Unknown"}</span>
+                        <span className="text-white truncate">{order.country || "Unknown"}</span>
                       </div>
-                    </Td>
-                    <Td className="font-mono text-xs">{order.ip_address}</Td>
-                    <Td className="text-sm text-slate-400">
-                      {formatDate(order.created_at)}
-                    </Td>
-                    <Td>
-                      <div className="flex gap-2">
-                        <a
-                          href={`https://wa.me/${order.whatsapp?.replace(/\D/g, "")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-xs font-medium transition"
-                        >
-                          <MessageCircle size={14} />
-                          Chat
-                        </a>
-                        <a
-                          href={`mailto:${order.email}`}
-                          className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-xs font-medium transition"
-                        >
-                          <Mail size={14} />
-                          Email
-                        </a>
-                      </div>
-                    </Td>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <span className="w-20 shrink-0">IP:</span>
+                      <span className="text-white font-mono text-xs truncate">{order.ip_address}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <span className="w-20 shrink-0">Date:</span>
+                      <span className="text-white truncate">{formatDate(order.created_at)}</span>
+                    </div>
+                  </div>
+
+                  {/* Status Dropdown */}
+                  <div className="mb-4">
+                    <label className="text-xs text-slate-400 mb-1 block">Status:</label>
+                    <select
+                      value={order.status || "pending"}
+                      onChange={(e) => updateStatus(order.id, e.target.value)}
+                      disabled={updatingId === order.id}
+                      className={`w-full px-3 py-2.5 rounded-lg border text-sm font-medium bg-transparent cursor-pointer disabled:opacity-50 ${STATUS_COLORS[order.status || "pending"]}`}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="contacted">Contacted</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-3 border-t border-slate-800">
+                    <a
+                      href={`https://wa.me/${order.whatsapp?.replace(/\D/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-700 py-2.5 rounded-lg text-sm font-medium transition"
+                    >
+                      <MessageCircle size={16} />
+                      Chat
+                    </a>
+                    <a
+                      href={`mailto:${order.email}`}
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 py-2.5 rounded-lg text-sm font-medium transition"
+                    >
+                      <Mail size={16} />
+                      Email
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* DESKTOP TABLE VIEW - Hidden on mobile */}
+            <div className="hidden md:block overflow-x-auto bg-slate-900 border border-slate-800 rounded-2xl">
+              <table className="w-full">
+                <thead className="bg-slate-950">
+                  <tr>
+                    <Th>Name</Th>
+                    <Th>Email</Th>
+                    <Th>WhatsApp</Th>
+                    <Th>Plan</Th>
+                    <Th>Status</Th>
+                    <Th>Country</Th>
+                    <Th>IP</Th>
+                    <Th>Date</Th>
+                    <Th>Actions</Th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-800">
+                  {filteredOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-slate-800/50 transition">
+                      <Td>
+                        <div className="font-medium">{order.full_name || "—"}</div>
+                      </Td>
+                      <Td>
+                        <a href={`mailto:${order.email}`} className="text-blue-400 hover:underline">
+                          {order.email}
+                        </a>
+                      </Td>
+                      <Td>{order.whatsapp || "—"}</Td>
+                      <Td>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${PLAN_COLORS[order.plan]}`}>
+                          {order.plan}
+                        </span>
+                      </Td>
+                      <Td>
+                        <select
+                          value={order.status || "pending"}
+                          onChange={(e) => updateStatus(order.id, e.target.value)}
+                          disabled={updatingId === order.id}
+                          className={`px-3 py-2 rounded-lg border text-sm font-medium bg-transparent cursor-pointer disabled:opacity-50 ${STATUS_COLORS[order.status || "pending"]}`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="contacted">Contacted</option>
+                          <option value="closed">Closed</option>
+                        </select>
+                      </Td>
+                      <Td>
+                        <div className="flex items-center gap-2">
+                          {order.country_code && (
+                            <img
+                              src={`https://flagcdn.com/w40/${order.country_code.toLowerCase()}.png`}
+                              alt={order.country}
+                              className="w-6 h-4 rounded"
+                              loading="lazy"
+                            />
+                          )}
+                          <span className="text-sm">{order.country || "Unknown"}</span>
+                        </div>
+                      </Td>
+                      <Td className="font-mono text-xs">{order.ip_address}</Td>
+                      <Td className="text-sm text-slate-400">{formatDate(order.created_at)}</Td>
+                      <Td>
+                        <div className="flex gap-2">
+                          <a
+                            href={`https://wa.me/${order.whatsapp?.replace(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-xs font-medium transition"
+                          >
+                            <MessageCircle size={14} />
+                            Chat
+                          </a>
+                          <a
+                            href={`mailto:${order.email}`}
+                            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-xs font-medium transition"
+                          >
+                            <Mail size={14} />
+                            Email
+                          </a>
+                        </div>
+                      </Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         {/* Footer Info */}
@@ -405,19 +489,11 @@ export default function AdminPage() {
 }
 
 /* ---------- Subcomponents ---------- */
-function StatCard({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: number;
-  color: string;
-}) {
+function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-      <p className="text-slate-400 text-sm">{label}</p>
-      <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
+      <p className="text-slate-400 text-xs md:text-sm">{label}</p>
+      <p className={`text-2xl md:text-3xl font-bold mt-1 ${color}`}>{value}</p>
     </div>
   );
 }
@@ -430,12 +506,6 @@ function Th({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Td({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+function Td({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return <td className={`px-4 py-4 ${className}`}>{children}</td>;
 }
